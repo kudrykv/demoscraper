@@ -24,10 +24,8 @@ func NewWebPage(httpClient HTTPClient, rawURL string) *WebPage {
 	}
 }
 
-func (r *WebPage) Load(_ context.Context) error {
-	response, err := r.httpClient.Get(entities.Request{
-		URL: r.rawURL,
-	})
+func (r *WebPage) Load(ctx context.Context) error {
+	response, err := r.httpClient.Get(ctx, entities.Request{URL: r.rawURL})
 	if err != nil {
 		return fmt.Errorf("get request: %w", err)
 	}
@@ -37,6 +35,24 @@ func (r *WebPage) Load(_ context.Context) error {
 	}
 
 	return nil
+}
+
+func (r *WebPage) Links(_ context.Context) (entities.Links, error) {
+	nodesWithHrefs := htmlquery.Find(r.node, "//*[@href]")
+	links := make(entities.Links, 0, len(nodesWithHrefs))
+
+	for _, node := range nodesWithHrefs {
+		href := htmlquery.SelectAttr(node, "href")
+
+		link, err := entities.NewLinkFromRawURL(href)
+		if err != nil {
+			continue
+		}
+
+		links = append(links, link)
+	}
+
+	return links, nil
 }
 
 type WebPages []*WebPage

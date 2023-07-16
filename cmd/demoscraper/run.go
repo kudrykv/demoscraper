@@ -22,5 +22,7 @@ func run(ctx context.Context) {
 		return
 	}
 
-	_ = crawlEntries
+	for crawlEntry := range crawlEntries {
+		log.Printf("CrawlEntry: %v\n", crawlEntry)
+	}
 }
