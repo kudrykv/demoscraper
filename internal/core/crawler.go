@@ -28,6 +28,7 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 
 	entries := make(chan entities.CrawlEntry, 1)
 	pagesToVisit := WebPages{r.webPager.New(parameters.StartURL)}
+	visitedPages := make(map[string]struct{})
 
 	go func() {
 		defer close(entries)
@@ -39,6 +40,12 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 
 			default:
 				for _, webPage := range pagesToVisit {
+					if _, ok := visitedPages[webPage.URL()]; ok {
+						continue
+					}
+
+					visitedPages[webPage.URL()] = struct{}{}
+
 					if err := webPage.Load(ctx); err != nil {
 						continue
 					}

@@ -38,6 +38,10 @@ func (r *WebPage) Load(ctx context.Context) error {
 }
 
 func (r *WebPage) Links(_ context.Context) (entities.Links, error) {
+	if r.node == nil {
+		return nil, ErrNotLoaded
+	}
+
 	nodesWithHrefs := htmlquery.Find(r.node, "//*[@href]")
 	links := make(entities.Links, 0, len(nodesWithHrefs))
 
@@ -53,6 +57,10 @@ func (r *WebPage) Links(_ context.Context) (entities.Links, error) {
 	}
 
 	return links, nil
+}
+
+func (r *WebPage) URL() string {
+	return r.rawURL
 }
 
 type WebPages []*WebPage

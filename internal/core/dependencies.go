@@ -12,6 +12,7 @@ type WebPager interface {
 type WebPage interface {
 	Load(context.Context) error
 	Links(context.Context) (entities.Links, error)
+	URL() string
 }
 
 type WebPages []WebPage
