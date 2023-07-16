@@ -5,11 +5,14 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"time"
 )
 
 func main() {
+	setupFlags()
+
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	signalChan := make(chan os.Signal, 1)
 	waitChan := make(chan struct{})
 
@@ -29,17 +32,4 @@ func main() {
 	}()
 
 	<-waitChan
-}
-
-func run(ctx context.Context) {
-	select {
-	case <-time.After(5 * time.Second):
-		log.Println("Done")
-
-		return
-	case <-ctx.Done():
-		log.Println("Cancelled")
-
-		return
-	}
 }
