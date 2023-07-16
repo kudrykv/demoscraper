@@ -26,6 +26,14 @@ func (r Link) URL() string {
 	return r.url.String()
 }
 
+func (r Link) String() string {
+	if r.url == nil {
+		return "empty link"
+	}
+
+	return r.URL()
+}
+
 type Links []Link
 
 func (r Links) Unique() Links {

@@ -41,6 +41,10 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 		defer close(crawlEntriesChan)
 
 		for webPage := range pagesToVisitChan {
+			if webPage.Depth() > parameters.DepthLimit {
+				continue
+			}
+
 			if err := webPage.Load(ctx); err != nil {
 				continue
 			}
