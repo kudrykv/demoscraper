@@ -22,6 +22,10 @@ func (r Link) Hostname() string {
 	return r.url.Hostname()
 }
 
+func (r Link) URL() string {
+	return r.url.String()
+}
+
 type Links []Link
 
 func (r Links) Unique() Links {
@@ -47,6 +51,20 @@ func (r Links) Unique() Links {
 
 func (r Links) FilterHostname(hostname string) Links {
 	return r.filter(func(link Link) bool { return link.Hostname() == hostname })
+}
+
+func (r Links) ToCrawlEntries(depth int) CrawlEntries {
+	if len(r) == 0 {
+		return nil
+	}
+
+	crawlEntries := make(CrawlEntries, 0, len(r))
+
+	for _, link := range r {
+		crawlEntries = append(crawlEntries, NewCrawlEntry(link, depth))
+	}
+
+	return crawlEntries
 }
 
 func (r Links) filter(f func(link Link) bool) Links {

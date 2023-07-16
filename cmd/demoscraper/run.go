@@ -14,7 +14,8 @@ func run(ctx context.Context) {
 	crawler := core.NewCrawler(webPager)
 
 	crawlEntries, err := crawler.Crawl(ctx, core.CrawlParameters{
-		StartURL: flagStartingURL,
+		StartURL:   flagStartingURL,
+		DepthLimit: flagDepth,
 	})
 	if err != nil {
 		log.Println(err)

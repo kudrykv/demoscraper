@@ -14,6 +14,6 @@ func New(httpClient HTTPClient) WebPager {
 	}
 }
 
-func (r WebPager) New(rawURL string) core.WebPage {
-	return NewWebPage(r.httpClient, rawURL)
+func (r WebPager) New(rawURL string, depth int) core.WebPage {
+	return NewWebPage(r.httpClient, rawURL, depth)
 }
