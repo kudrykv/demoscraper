@@ -3,8 +3,6 @@ package core
 import (
 	"context"
 	"demoscraper/internal/core/entities"
-	"fmt"
-	"net/url"
 )
 
 type Crawler struct{}
@@ -18,15 +16,25 @@ type CrawlParameters struct {
 }
 
 func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan entities.CrawlEntry, error) {
-	_, err := url.Parse(parameters.StartURL)
-	if err != nil {
-		return nil, fmt.Errorf("parse url: %w", err)
-	}
-
 	entries := make(chan entities.CrawlEntry, 1)
+	pagesToVisit := WebPages{NewWebPage(parameters.StartURL)}
+
 	go func() {
 		defer close(entries)
 
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			default:
+				for _, webPage := range pagesToVisit {
+					if err := webPage.Load(ctx); err != nil {
+						continue
+					}
+				}
+			}
+		}
 	}()
 
 	return entries, nil
