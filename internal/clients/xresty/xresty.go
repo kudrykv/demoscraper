@@ -2,6 +2,7 @@ package xresty
 
 import (
 	"demoscraper/internal/core/entities"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"net/http"
 )
@@ -16,6 +17,13 @@ func New() Client {
 	}
 }
 
-func (r Client) Get(_ entities.Request) (entities.Response, error) {
-	return entities.Response{}, nil
+func (r Client) Get(request entities.Request) (entities.Response, error) {
+	response, err := r.client.R().Get(request.URL)
+	if err != nil {
+		return entities.Response{}, fmt.Errorf("get request: %w", err)
+	}
+
+	return entities.Response{
+		Body: response.Body(),
+	}, nil
 }

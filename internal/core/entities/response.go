@@ -1,3 +1,5 @@
 package entities
 
-type Response struct{}
+type Response struct {
+	Body []byte
+}

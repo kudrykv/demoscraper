@@ -2,12 +2,18 @@ package main
 
 import (
 	"context"
+	"demoscraper/internal/adapters/webpager"
+	"demoscraper/internal/clients/xresty"
 	"demoscraper/internal/core"
 	"log"
 )
 
 func run(ctx context.Context) {
-	crawlEntries, err := core.NewCrawler().Crawl(ctx, core.CrawlParameters{
+	httpClient := xresty.New()
+	webPager := webpager.New(httpClient)
+	crawler := core.NewCrawler(webPager)
+
+	crawlEntries, err := crawler.Crawl(ctx, core.CrawlParameters{
 		StartURL: flagStartingURL,
 	})
 	if err != nil {

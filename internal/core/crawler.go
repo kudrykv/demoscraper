@@ -5,10 +5,14 @@ import (
 	"demoscraper/internal/core/entities"
 )
 
-type Crawler struct{}
+type Crawler struct {
+	webPager WebPager
+}
 
-func NewCrawler() Crawler {
-	return Crawler{}
+func NewCrawler(webPager WebPager) Crawler {
+	return Crawler{
+		webPager: webPager,
+	}
 }
 
 type CrawlParameters struct {
@@ -17,7 +21,7 @@ type CrawlParameters struct {
 
 func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan entities.CrawlEntry, error) {
 	entries := make(chan entities.CrawlEntry, 1)
-	pagesToVisit := WebPages{NewWebPage(parameters.StartURL)}
+	pagesToVisit := WebPages{r.webPager.New(parameters.StartURL)}
 
 	go func() {
 		defer close(entries)

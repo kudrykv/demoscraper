@@ -1,3 +1,5 @@
 package entities
 
-type Request struct{}
+type Request struct {
+	URL string
+}
