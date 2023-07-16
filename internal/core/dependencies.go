@@ -17,3 +17,7 @@ type WebPage interface {
 }
 
 type WebPages []WebPage
+
+type Marshaller interface {
+	Marshal(entities.CrawlEntry) ([]byte, error)
+}
