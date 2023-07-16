@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"demoscraper/internal/core/entities"
 	"fmt"
 	"net/url"
@@ -12,14 +13,21 @@ func NewCrawler() Crawler {
 	return Crawler{}
 }
 
-func (r Crawler) Crawl(startingURI string) (<-chan entities.CrawlEntry, error) {
-	_, err := url.Parse(startingURI)
+type CrawlParameters struct {
+	StartURL string
+}
+
+func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan entities.CrawlEntry, error) {
+	_, err := url.Parse(parameters.StartURL)
 	if err != nil {
 		return nil, fmt.Errorf("parse url: %w", err)
 	}
 
 	entries := make(chan entities.CrawlEntry, 1)
-	close(entries)
+	go func() {
+		defer close(entries)
+
+	}()
 
 	return entries, nil
 }

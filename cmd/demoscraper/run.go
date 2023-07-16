@@ -2,19 +2,19 @@ package main
 
 import (
 	"context"
+	"demoscraper/internal/core"
 	"log"
-	"time"
 )
 
 func run(ctx context.Context) {
-	select {
-	case <-time.After(5 * time.Second):
-		log.Println("Done")
-
-		return
-	case <-ctx.Done():
-		log.Println("Cancelled")
+	crawlEntries, err := core.NewCrawler().Crawl(ctx, core.CrawlParameters{
+		StartURL: flagStartingURL,
+	})
+	if err != nil {
+		log.Println(err)
 
 		return
 	}
+
+	_ = crawlEntries
 }
