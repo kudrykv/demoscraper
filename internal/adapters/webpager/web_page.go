@@ -1,15 +1,20 @@
 package webpager
 
 import (
+	"bytes"
 	"context"
 	"demoscraper/internal/core/entities"
 	"fmt"
+	"github.com/antchfx/htmlquery"
+	"golang.org/x/net/html"
+	"io"
 )
 
 type WebPage struct {
 	httpClient HTTPClient
 
 	rawURL string
+	node   *html.Node
 }
 
 func NewWebPage(httpClient HTTPClient, rawURL string) *WebPage {
@@ -27,7 +32,9 @@ func (r *WebPage) Load(_ context.Context) error {
 		return fmt.Errorf("get request: %w", err)
 	}
 
-	_ = response
+	if r.node, err = htmlquery.Parse(io.NopCloser(bytes.NewReader(response.Body))); err != nil {
+		return fmt.Errorf("parse html: %w", err)
+	}
 
 	return nil
 }
