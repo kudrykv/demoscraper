@@ -36,6 +36,8 @@ func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan 
 					if err := webPage.Load(ctx); err != nil {
 						continue
 					}
+
+					webPage.Links()
 				}
 			}
 		}

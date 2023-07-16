@@ -1,7 +1,10 @@
 package webpager
 
-import "demoscraper/internal/core/entities"
+import (
+	"context"
+	"demoscraper/internal/core/entities"
+)
 
 type HTTPClient interface {
-	Get(request entities.Request) (response entities.Response, err error)
+	Get(context.Context, entities.Request) (entities.Response, error)
 }
