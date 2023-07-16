@@ -9,8 +9,8 @@ type Crawler struct {
 	webPager WebPager
 }
 
-func NewCrawler(webPager WebPager) Crawler {
-	return Crawler{
+func NewCrawler(webPager WebPager) *Crawler {
+	return &Crawler{
 		webPager: webPager,
 	}
 }
@@ -19,7 +19,7 @@ type CrawlParameters struct {
 	StartURL string
 }
 
-func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan entities.CrawlEntry, error) {
+func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan entities.CrawlEntry, error) {
 	entries := make(chan entities.CrawlEntry, 1)
 	pagesToVisit := WebPages{r.webPager.New(parameters.StartURL)}
 
@@ -37,7 +37,12 @@ func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan 
 						continue
 					}
 
-					webPage.Links(ctx)
+					links, err := webPage.Links(ctx)
+					if err != nil {
+						continue
+					}
+
+					_ = links
 				}
 			}
 		}
