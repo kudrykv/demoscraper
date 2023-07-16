@@ -4,6 +4,7 @@ import (
 	"context"
 	"demoscraper/internal/core/entities"
 	"fmt"
+	"sync/atomic"
 )
 
 type Crawler struct {
@@ -33,6 +34,13 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 
 	pagesToVisitChan := make(chan WebPage, 1)
 	crawlEntriesChan := make(chan entities.CrawlEntry, 1)
+
+	webPagesNumber := atomic.Int64{}
+	crawlNumber := atomic.Int64{}
+
+	webPagesNumber.Store(1)
+	crawlNumber.Store(0)
+
 	//visitedPages := make(map[string]struct{})
 
 	pagesToVisitChan <- r.webPager.New(parameters.StartURL, 0)
@@ -42,20 +50,48 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 
 		for webPage := range pagesToVisitChan {
 			if webPage.Depth() > parameters.DepthLimit {
+				if webPagesNumber.Add(-1) == 0 {
+					if crawlNumber.Load() == 0 {
+						return
+					}
+				}
+
 				continue
 			}
 
 			if err := webPage.Load(ctx); err != nil {
+				if webPagesNumber.Add(-1) == 0 {
+					if crawlNumber.Load() == 0 {
+						return
+					}
+				}
+
 				continue
 			}
 
 			links, err := webPage.Links(ctx)
 			if err != nil {
+				if webPagesNumber.Add(-1) == 0 {
+					if crawlNumber.Load() == 0 {
+						return
+					}
+				}
+
 				continue
 			}
 
-			for _, entry := range links.ToCrawlEntries(webPage.Depth() + 1) {
+			toCrawlEntries := links.ToCrawlEntries(webPage.Depth() + 1)
+
+			crawlNumber.Add(int64(len(toCrawlEntries)))
+
+			for _, entry := range toCrawlEntries {
 				crawlEntriesChan <- entry
+			}
+
+			if webPagesNumber.Add(-1) == 0 {
+				if crawlNumber.Load() == 0 {
+					return
+				}
 			}
 		}
 	}()
@@ -65,13 +101,25 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 
 		for crawlEntry := range crawlEntriesChan {
 			if !crawlEntry.MatchesHostname(hostname) {
+				if crawlNumber.Add(-1) == 0 {
+					if webPagesNumber.Load() == 0 {
+						return
+					}
+				}
+
 				continue
 			}
 
 			processedCrawlEntriesChan <- crawlEntry
 
-			if crawlEntry.Depth < parameters.DepthLimit {
+			if crawlEntry.Depth <= parameters.DepthLimit {
 				pagesToVisitChan <- r.webPager.New(crawlEntry.URL(), crawlEntry.Depth)
+			}
+
+			if crawlNumber.Add(-1) == 0 {
+				if webPagesNumber.Load() == 0 {
+					return
+				}
 			}
 		}
 	}()
