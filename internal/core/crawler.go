@@ -37,7 +37,7 @@ func (r Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan 
 						continue
 					}
 
-					webPage.Links()
+					webPage.Links(ctx)
 				}
 			}
 		}
