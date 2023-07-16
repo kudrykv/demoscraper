@@ -42,12 +42,6 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 			processedLinks = processedLinks[:0]
 
 			for _, page := range webPages {
-				if _, ok := visitedMap[page.URL()]; ok {
-					continue
-				}
-
-				visitedMap[page.URL()] = struct{}{}
-
 				if err := page.Load(ctx); err != nil {
 					continue
 				}
@@ -57,14 +51,25 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 					continue
 				}
 
-				processedLinks = append(processedLinks, links.SupplementMissingHostname(link).FilterHostname(hostname).Unique()...)
-			}
+				links = links.SupplementMissingHostname(link).FilterHostname(hostname).Cleanup().Unique().DropVisited(visitedMap)
+				visitedMap = r.merge(visitedMap, links.ToVisitedMap())
 
-			for _, entry := range processedLinks.ToCrawlEntries(depth) {
-				processedCrawlEntriesChan <- entry
+				for _, entry := range links.ToCrawlEntries(depth) {
+					processedCrawlEntriesChan <- entry
+				}
+
+				processedLinks = append(processedLinks, links...)
 			}
 		}
 	}()
 
 	return processedCrawlEntriesChan, nil
+}
+
+func (r *Crawler) merge(left map[string]struct{}, right map[string]struct{}) map[string]struct{} {
+	for k, v := range right {
+		left[k] = v
+	}
+
+	return left
 }

@@ -44,7 +44,7 @@ func (r Links) Unique() Links {
 	unique := make(map[string]struct{})
 	var result Links
 	for _, link := range r {
-		key := link.url.String()
+		key := link.URL()
 
 		if _, ok := unique[key]; ok {
 			continue
@@ -106,4 +106,53 @@ func (r Links) SupplementMissingHostname(link Link) Links {
 	}
 
 	return links
+}
+
+func (r Links) Cleanup() Links {
+	if len(r) == 0 {
+		return nil
+	}
+
+	links := make(Links, len(r))
+	copy(links, r)
+
+	for i := range links {
+		links[i].url.Fragment = ""
+
+		if links[i].url.Path == "/" {
+			links[i].url.Path = ""
+		}
+	}
+
+	return links
+}
+
+func (r Links) DropVisited(hitMap map[string]struct{}) Links {
+	if len(r) == 0 {
+		return nil
+	}
+
+	var result Links
+	for _, link := range r {
+		if _, ok := hitMap[link.URL()]; ok {
+			continue
+		}
+
+		result = append(result, link)
+	}
+
+	return result
+}
+
+func (r Links) ToVisitedMap() map[string]struct{} {
+	if len(r) == 0 {
+		return nil
+	}
+
+	visitedMap := make(map[string]struct{}, len(r))
+	for _, link := range r {
+		visitedMap[link.URL()] = struct{}{}
+	}
+
+	return visitedMap
 }
