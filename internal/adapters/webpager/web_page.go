@@ -14,16 +14,14 @@ type WebPage struct {
 	httpClient HTTPClient
 
 	rawURL string
-	depth  int
 
 	node *html.Node
 }
 
-func NewWebPage(httpClient HTTPClient, rawURL string, depth int) *WebPage {
+func NewWebPage(httpClient HTTPClient, rawURL string) *WebPage {
 	return &WebPage{
 		httpClient: httpClient,
 		rawURL:     rawURL,
-		depth:      depth,
 	}
 }
 
@@ -64,10 +62,6 @@ func (r *WebPage) Links(_ context.Context) (entities.Links, error) {
 
 func (r *WebPage) URL() string {
 	return r.rawURL
-}
-
-func (r *WebPage) Depth() int {
-	return r.depth
 }
 
 type WebPages []*WebPage

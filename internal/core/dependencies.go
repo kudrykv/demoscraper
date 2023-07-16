@@ -6,14 +6,14 @@ import (
 )
 
 type WebPager interface {
-	New(rawURL string, depth int) WebPage
+	New(rawURL string) WebPage
+	NewFromLinks(entities.Links) WebPages
 }
 
 type WebPage interface {
 	Load(context.Context) error
 	Links(context.Context) (entities.Links, error)
 	URL() string
-	Depth() int
 }
 
 type WebPages []WebPage

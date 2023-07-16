@@ -89,3 +89,21 @@ func (r Links) filter(f func(link Link) bool) Links {
 
 	return result
 }
+
+func (r Links) SupplementMissingHostname(link Link) Links {
+	if len(r) == 0 {
+		return nil
+	}
+
+	links := make(Links, len(r))
+	copy(links, r)
+
+	for i := range links {
+		if links[i].Hostname() == "" {
+			links[i].url.Scheme = link.url.Scheme
+			links[i].url.Host = link.url.Host
+		}
+	}
+
+	return links
+}

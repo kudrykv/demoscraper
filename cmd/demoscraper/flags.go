@@ -8,8 +8,8 @@ var (
 )
 
 func setupFlags() {
-	flag.IntVar(&flagDepth, "depth", 1, "Depth of scraping")
-	flag.StringVar(&flagStartingURL, "url", "https://www.google.com", "URL to start scraping from")
+	flag.IntVar(&flagDepth, "depth", 2, "Depth of scraping")
+	flag.StringVar(&flagStartingURL, "url", "https://github.com", "URL to start scraping from")
 
 	flag.Parse()
 }
