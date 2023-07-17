@@ -32,22 +32,22 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 		return nil, fmt.Errorf("link from raw url: %w", err)
 	}
 
-	processedCrawlEntriesChan := make(chan entities.CrawlEntry, 1)
+	crawlEntriesChan := make(chan entities.CrawlEntry, 1)
 
 	go func() {
-		defer close(processedCrawlEntriesChan)
+		defer close(crawlEntriesChan)
 
-		r.crawl(ctx, parameters, link, processedCrawlEntriesChan)
+		r.crawl(ctx, parameters, link, crawlEntriesChan)
 	}()
 
-	return processedCrawlEntriesChan, nil
+	return crawlEntriesChan, nil
 }
 
 func (r *Crawler) crawl(
 	ctx context.Context,
 	parameters CrawlParameters,
 	root entities.Link,
-	processedCrawlEntriesChan chan<- entities.CrawlEntry,
+	crawlEntriesChan chan<- entities.CrawlEntry,
 ) {
 	processedLinks := entities.Links{root}
 	visitor := r.makeVisitor()
@@ -86,7 +86,7 @@ func (r *Crawler) crawl(
 				visitor.Merge(links.ToVisitMap())
 
 				for _, entry := range links.ToCrawlEntries(depth) {
-					processedCrawlEntriesChan <- entry
+					crawlEntriesChan <- entry
 				}
 
 				mutex.Lock()
