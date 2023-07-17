@@ -2,7 +2,6 @@ package webpager
 
 import (
 	"context"
-
 	"demoscraper/internal/core/entities"
 )
 

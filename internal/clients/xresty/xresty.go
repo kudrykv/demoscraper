@@ -2,10 +2,9 @@ package xresty
 
 import (
 	"context"
+	"demoscraper/internal/core/entities"
 	"fmt"
 	"net/http"
-
-	"demoscraper/internal/core/entities"
 
 	"github.com/go-resty/resty/v2"
 )

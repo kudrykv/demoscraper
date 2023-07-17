@@ -1,9 +1,8 @@
 package tsvmarshaller
 
 import (
-	"strconv"
-
 	"demoscraper/internal/core/entities"
+	"strconv"
 )
 
 type TSVMarshaller struct{}

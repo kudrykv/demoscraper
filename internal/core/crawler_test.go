@@ -2,15 +2,15 @@ package core_test
 
 import (
 	"context"
-	"net/http"
-	"testing"
-	"time"
-
 	"demoscraper/internal/adapters/inmemvisitor"
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
 	"demoscraper/internal/core"
 	"demoscraper/internal/core/entities"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/stretchr/testify/require"
 	"gopkg.in/dnaeon/go-vcr.v3/recorder"
 )

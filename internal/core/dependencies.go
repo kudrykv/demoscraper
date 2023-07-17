@@ -2,7 +2,6 @@ package core
 
 import (
 	"context"
-
 	"demoscraper/internal/core/entities"
 )
 
