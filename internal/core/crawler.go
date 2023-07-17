@@ -77,9 +77,13 @@ func (r *Crawler) crawl(
 					return
 				}
 
-				links = links.SupplementMissingHostname(link).FilterHostname(hostname).Cleanup().Unique()
+				links = links.
+					SupplementMissingHostname(link).
+					FilterHostname(hostname).
+					Cleanup().
+					Unique().
+					DropVisited(visitor.ToVisitMap())
 
-				links = links.DropVisited(visitor.ToVisitMap())
 				visitor.Merge(links.ToVisitedMap())
 
 				for _, entry := range links.ToCrawlEntries(depth) {
