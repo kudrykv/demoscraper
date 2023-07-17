@@ -6,6 +6,7 @@ import (
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
 	"demoscraper/internal/core"
+	"demoscraper/internal/core/entities"
 	"log"
 )
 
@@ -26,7 +27,26 @@ func run(ctx context.Context) {
 		return
 	}
 
-	if err := store.Save(ctx, flagOutputFile, crawlEntries); err != nil {
+	logChan := make(chan entities.CrawlEntry, 1)
+	saveChan := make(chan entities.CrawlEntry, 1)
+
+	go func() {
+		for entry := range crawlEntries {
+			logChan <- entry
+			saveChan <- entry
+		}
+
+		close(logChan)
+		close(saveChan)
+	}()
+
+	go func() {
+		for entry := range logChan {
+			log.Println(entry)
+		}
+	}()
+
+	if err := store.Save(ctx, flagOutputFile, saveChan); err != nil {
 		log.Println(err)
 
 		return
