@@ -5,6 +5,7 @@ import (
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
 	"demoscraper/internal/core"
+	"demoscraper/internal/core/entities"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/dnaeon/go-vcr.v3/recorder"
 	"net/http"
@@ -21,31 +22,23 @@ func TestCrawler_Crawl(t *testing.T) {
 		vcr := setupVCR("fixtures/crawler/successful_run")
 		defer func() { require.NoError(t, vcr.Stop()) }()
 
-		ctx := context.Background()
+		crawler := setupCrawler(vcr)
 
-		rawHTTPClient := &http.Client{Transport: vcr}
-		httpClient := xresty.New(rawHTTPClient)
-		webPager := webpager.New(httpClient)
-		crawler := core.NewCrawler(webPager)
+		ctx := context.Background()
 
 		crawlEntries, err := crawler.Crawl(ctx, core.CrawlParameters{StartURL: "https://github.com", DepthLimit: 2})
 		require.NoError(t, err)
 
-		for {
-			timer := time.NewTimer(5 * time.Second)
+		urls := drainCrawlEntries(t, crawlEntries)
 
-			select {
-			case crawlEntry, ok := <-crawlEntries:
-				if !ok {
-					return
-				}
+		require.Equal(t, 2860, len(urls))
 
-				t.Logf("CrawlEntry: %+v", crawlEntry)
-				timer.Stop()
-			case <-timer.C:
-				require.FailNow(t, "timeout while waiting for crawl entry")
-			}
+		urlMap := make(map[string]struct{})
+		for _, url := range urls {
+			urlMap[url] = struct{}{}
 		}
+
+		require.Equal(t, len(urls), len(urlMap))
 	})
 }
 
@@ -59,4 +52,44 @@ func setupVCR(cassetteName string) *recorder.Recorder {
 	}
 
 	return vcr
+}
+
+func setupCrawler(roundTripper http.RoundTripper) *core.Crawler {
+	rawHTTPClient := &http.Client{Transport: roundTripper}
+	httpClient := xresty.New(rawHTTPClient)
+	webPager := webpager.New(httpClient)
+
+	return core.NewCrawler(webPager)
+}
+
+func drainCrawlEntries(t *testing.T, crawlEntries <-chan entities.CrawlEntry) []string {
+	t.Helper()
+
+	var urls []string
+
+	for {
+		timer := time.NewTimer(5 * time.Second)
+		finished := false
+
+		select {
+		case crawlEntry, ok := <-crawlEntries:
+			if !ok {
+				finished = true
+
+				break
+			}
+
+			urls = append(urls, crawlEntry.URL())
+
+			timer.Stop()
+		case <-timer.C:
+			require.FailNow(t, "timeout while waiting for crawl entry")
+		}
+
+		if finished {
+			break
+		}
+	}
+
+	return urls
 }
