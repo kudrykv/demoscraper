@@ -34,13 +34,13 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 	go func() {
 		defer close(processedCrawlEntriesChan)
 
-		r.process(ctx, parameters, link, processedCrawlEntriesChan)
+		r.crawl(ctx, parameters, link, processedCrawlEntriesChan)
 	}()
 
 	return processedCrawlEntriesChan, nil
 }
 
-func (r *Crawler) process(
+func (r *Crawler) crawl(
 	ctx context.Context,
 	parameters CrawlParameters,
 	link entities.Link,
@@ -96,6 +96,46 @@ func (r *Crawler) process(
 
 		waitGroup.Wait()
 	}
+}
+
+func (r *Crawler) processOne(ctx context.Context, root entities.Link, webPage WebPage, visitedMap map[string]struct{}) (entities.Links, error) {
+	links, err := r.processWebpage(ctx, webPage)
+	if err != nil {
+		return nil, fmt.Errorf("process webpage: %w", err)
+	}
+
+	links, updatedVisitMap := r.processLinksBatch(links, root, visitedMap)
+
+	ptr := &visitedMap
+	*ptr = updatedVisitMap
+
+	panic("later")
+}
+
+func (r *Crawler) processWebpage(ctx context.Context, webPage WebPage) (entities.Links, error) {
+	if err := webPage.Load(ctx); err != nil {
+		return nil, fmt.Errorf("load: %w", err)
+	}
+
+	links, err := webPage.Links(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("links: %w", err)
+	}
+
+	return links, nil
+}
+
+func (r *Crawler) processLinksBatch(
+	links entities.Links, root entities.Link, visitedMap map[string]struct{},
+) (entities.Links, map[string]struct{}) {
+	filteredLinks := links.
+		SupplementMissingHostname(root).
+		FilterHostname(root.Hostname()).
+		Cleanup().
+		Unique().
+		DropVisited(visitedMap)
+
+	return filteredLinks, r.merge(visitedMap, filteredLinks.ToVisitedMap())
 }
 
 func (r *Crawler) merge(left map[string]struct{}, right map[string]struct{}) map[string]struct{} {
