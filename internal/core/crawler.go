@@ -4,6 +4,8 @@ import (
 	"context"
 	"demoscraper/internal/core/entities"
 	"fmt"
+	"runtime"
+	"sync"
 )
 
 type Crawler struct {
@@ -52,25 +54,47 @@ func (r *Crawler) process(
 		webPages := r.webPager.NewFromLinks(processedLinks)
 		processedLinks = processedLinks[:0]
 
-		for _, page := range webPages {
-			if err := page.Load(ctx); err != nil {
-				continue
-			}
+		waitGroup := sync.WaitGroup{}
+		waitGroup.Add(len(webPages))
 
-			links, err := page.Links(ctx)
-			if err != nil {
-				continue
-			}
-
-			links = links.SupplementMissingHostname(link).FilterHostname(hostname).Cleanup().Unique().DropVisited(visitedMap)
-			visitedMap = r.merge(visitedMap, links.ToVisitedMap())
-
-			for _, entry := range links.ToCrawlEntries(depth) {
-				processedCrawlEntriesChan <- entry
-			}
-
-			processedLinks = append(processedLinks, links...)
+		semaphoreLimit := runtime.NumCPU()
+		if semaphoreLimit < 1 {
+			semaphoreLimit = 1
 		}
+
+		semaphoreLimit = 1
+
+		semaphore := make(chan struct{}, semaphoreLimit)
+
+		for _, webPage := range webPages {
+			webPage := webPage
+			semaphore <- struct{}{}
+
+			go func() {
+				defer waitGroup.Done()
+				defer func() { <-semaphore }()
+
+				if err := webPage.Load(ctx); err != nil {
+					return
+				}
+
+				links, err := webPage.Links(ctx)
+				if err != nil {
+					return
+				}
+
+				links = links.SupplementMissingHostname(link).FilterHostname(hostname).Cleanup().Unique().DropVisited(visitedMap)
+				visitedMap = r.merge(visitedMap, links.ToVisitedMap())
+
+				for _, entry := range links.ToCrawlEntries(depth) {
+					processedCrawlEntriesChan <- entry
+				}
+
+				processedLinks = append(processedLinks, links...)
+			}()
+		}
+
+		waitGroup.Wait()
 	}
 }
 
