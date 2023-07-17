@@ -63,8 +63,6 @@ func (r *Crawler) crawl(
 			semaphoreLimit = 1
 		}
 
-		semaphoreLimit = 1
-
 		semaphore := make(chan struct{}, semaphoreLimit)
 
 		for _, webPage := range webPages {
