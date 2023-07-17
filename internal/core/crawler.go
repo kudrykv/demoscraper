@@ -9,14 +9,14 @@ import (
 )
 
 type Crawler struct {
-	webPager     WebPager
-	visitorMaker VisitorMaker
+	webPager    WebPager
+	makeVisitor MakeVisitor
 }
 
-func NewCrawler(webPager WebPager, visitorMaker VisitorMaker) *Crawler {
+func NewCrawler(webPager WebPager, makeVisitor MakeVisitor) *Crawler {
 	return &Crawler{
-		webPager:     webPager,
-		visitorMaker: visitorMaker,
+		webPager:    webPager,
+		makeVisitor: makeVisitor,
 	}
 }
 
@@ -50,7 +50,7 @@ func (r *Crawler) crawl(
 ) {
 	hostname := link.Hostname()
 	processedLinks := entities.Links{link}
-	visitedMap := make(map[string]struct{})
+	visitor := r.makeVisitor()
 	mutex := sync.Mutex{}
 
 	for depth := 1; depth <= parameters.DepthLimit; depth++ {
@@ -86,10 +86,8 @@ func (r *Crawler) crawl(
 
 				links = links.SupplementMissingHostname(link).FilterHostname(hostname).Cleanup().Unique()
 
-				mutex.Lock()
-				links = links.DropVisited(visitedMap)
-				visitedMap = r.merge(visitedMap, links.ToVisitedMap())
-				mutex.Unlock()
+				links = links.DropVisited(visitor.ToVisitMap())
+				visitor.Merge(links.ToVisitedMap())
 
 				for _, entry := range links.ToCrawlEntries(depth) {
 					processedCrawlEntriesChan <- entry
@@ -103,12 +101,4 @@ func (r *Crawler) crawl(
 
 		waitGroup.Wait()
 	}
-}
-
-func (r *Crawler) merge(left map[string]struct{}, right map[string]struct{}) map[string]struct{} {
-	for k, v := range right {
-		left[k] = v
-	}
-
-	return left
 }

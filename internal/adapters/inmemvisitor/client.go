@@ -2,6 +2,7 @@ package inmemvisitor
 
 import (
 	"demoscraper/internal/core"
+	"demoscraper/internal/core/entities"
 	"sync"
 )
 
@@ -29,4 +30,24 @@ func (r *Client) IsVisited(some string) bool {
 	r.mutex.Unlock()
 
 	return ok
+}
+
+func (r *Client) ToVisitMap() entities.VisitMap {
+	cp := make(entities.VisitMap, len(r.visitMap))
+
+	r.mutex.Lock()
+	for k, v := range r.visitMap {
+		cp[k] = v
+	}
+	r.mutex.Unlock()
+
+	return cp
+}
+
+func (r *Client) Merge(visitMap entities.VisitMap) {
+	r.mutex.Lock()
+	for k, v := range visitMap {
+		r.visitMap[k] = v
+	}
+	r.mutex.Unlock()
 }

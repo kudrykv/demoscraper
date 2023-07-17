@@ -22,9 +22,11 @@ type Marshaller interface {
 	Marshal(entities.CrawlEntry) ([]byte, error)
 }
 
-type VisitorMaker func() Visitor
+type MakeVisitor func() Visitor
 
 type Visitor interface {
 	Visit(string)
 	IsVisited(string) bool
+	ToVisitMap() entities.VisitMap
+	Merge(entities.VisitMap)
 }
