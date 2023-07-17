@@ -36,14 +36,14 @@ func (r *Client) IsVisited(some string) bool {
 func (r *Client) ToVisitMap() entities.VisitMap {
 	r.mutex.Lock()
 
-	cp := make(entities.VisitMap, len(r.visitMap))
+	futureCopy := make(entities.VisitMap, len(r.visitMap))
 
 	for k, v := range r.visitMap {
-		cp[k] = v
+		futureCopy[k] = v
 	}
 	r.mutex.Unlock()
 
-	return cp
+	return futureCopy
 }
 
 func (r *Client) Merge(visitMap entities.VisitMap) {

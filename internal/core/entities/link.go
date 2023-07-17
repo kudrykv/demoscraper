@@ -42,7 +42,8 @@ func (r Links) Unique() Links {
 	}
 
 	unique := make(map[string]struct{})
-	var result Links
+	result := make(Links, 0, len(r))
+
 	for _, link := range r {
 		key := link.URL()
 
@@ -51,6 +52,7 @@ func (r Links) Unique() Links {
 		}
 
 		unique[key] = struct{}{}
+
 		result = append(result, link)
 	}
 
@@ -75,14 +77,15 @@ func (r Links) ToCrawlEntries(depth int) CrawlEntries {
 	return crawlEntries
 }
 
-func (r Links) filter(f func(link Link) bool) Links {
+func (r Links) filter(filterFunc func(link Link) bool) Links {
 	if len(r) == 0 {
 		return nil
 	}
 
 	var result Links
+
 	for _, link := range r {
-		if f(link) {
+		if filterFunc(link) {
 			result = append(result, link)
 		}
 	}
@@ -133,7 +136,8 @@ func (r Links) DropVisited(hitMap VisitMap) Links {
 		return nil
 	}
 
-	var result Links
+	result := make(Links, 0, len(r))
+
 	for _, link := range r {
 		if _, ok := hitMap[link.URL()]; ok {
 			continue

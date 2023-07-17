@@ -106,10 +106,10 @@ func makeWaitGroupAndSemaphore(waitGroupSize int, semaphoreSize int) (*sync.Wait
 	waitGroup.Add(waitGroupSize)
 
 	if semaphoreSize < 1 {
-		if numCpu := runtime.NumCPU(); numCpu < 1 {
+		if numCPU := runtime.NumCPU(); numCPU < 1 {
 			semaphoreSize = 1
 		} else {
-			semaphoreSize = numCpu
+			semaphoreSize = numCPU
 		}
 	}
 
