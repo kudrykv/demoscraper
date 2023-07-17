@@ -27,7 +27,8 @@ func TestCrawler_Crawl(t *testing.T) {
 
 		ctx := context.Background()
 
-		crawlEntries, err := crawler.Crawl(ctx, core.CrawlParameters{StartURL: "https://github.com", DepthLimit: 2})
+		crawlParameters := core.CrawlParameters{StartURL: "https://github.com", DepthLimit: 2, Parallelism: 8}
+		crawlEntries, err := crawler.Crawl(ctx, crawlParameters)
 		require.NoError(t, err)
 
 		urls := drainCrawlEntries(t, crawlEntries)

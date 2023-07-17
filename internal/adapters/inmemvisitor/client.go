@@ -33,9 +33,10 @@ func (r *Client) IsVisited(some string) bool {
 }
 
 func (r *Client) ToVisitMap() entities.VisitMap {
+	r.mutex.Lock()
+
 	cp := make(entities.VisitMap, len(r.visitMap))
 
-	r.mutex.Lock()
 	for k, v := range r.visitMap {
 		cp[k] = v
 	}
