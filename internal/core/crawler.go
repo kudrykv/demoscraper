@@ -49,7 +49,6 @@ func (r *Crawler) crawl(
 	link entities.Link,
 	processedCrawlEntriesChan chan<- entities.CrawlEntry,
 ) {
-	hostname := link.Hostname()
 	processedLinks := entities.Links{link}
 	visitor := r.makeVisitor()
 	mutex := sync.Mutex{}
@@ -79,7 +78,7 @@ func (r *Crawler) crawl(
 
 				links = links.
 					SupplementMissingHostname(link).
-					FilterHostname(hostname).
+					FilterHostname(link.Hostname()).
 					Cleanup().
 					Unique().
 					DropVisited(visitor.ToVisitMap())
