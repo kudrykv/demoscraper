@@ -46,10 +46,10 @@ func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan
 func (r *Crawler) crawl(
 	ctx context.Context,
 	parameters CrawlParameters,
-	link entities.Link,
+	root entities.Link,
 	processedCrawlEntriesChan chan<- entities.CrawlEntry,
 ) {
-	processedLinks := entities.Links{link}
+	processedLinks := entities.Links{root}
 	visitor := r.makeVisitor()
 	mutex := sync.Mutex{}
 
@@ -77,13 +77,13 @@ func (r *Crawler) crawl(
 				}
 
 				links = links.
-					SupplementMissingHostname(link).
-					FilterHostname(link.Hostname()).
+					SupplementMissingHostname(root).
+					FilterHostname(root.Hostname()).
 					Cleanup().
 					Unique().
 					DropVisited(visitor.ToVisitMap())
 
-				visitor.Merge(links.ToVisitedMap())
+				visitor.Merge(links.ToVisitMap())
 
 				for _, entry := range links.ToCrawlEntries(depth) {
 					processedCrawlEntriesChan <- entry

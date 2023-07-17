@@ -149,7 +149,7 @@ func (r Links) DropVisited(hitMap VisitMap) Links {
 	return result
 }
 
-func (r Links) ToVisitedMap() VisitMap {
+func (r Links) ToVisitMap() VisitMap {
 	if len(r) == 0 {
 		return nil
 	}
