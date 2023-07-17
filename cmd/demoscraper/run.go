@@ -8,11 +8,12 @@ import (
 	"demoscraper/internal/core"
 	"demoscraper/internal/core/entities"
 	"log"
+	"net/http"
 	"sync"
 )
 
 func run(ctx context.Context) {
-	httpClient := xresty.New()
+	httpClient := xresty.New(http.DefaultClient)
 	tsvMarshaller := tsvmarshaller.New()
 	webPager := webpager.New(httpClient)
 	crawler := core.NewCrawler(webPager)
