@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"demoscraper/internal/adapters/inmemvisitor"
 	"demoscraper/internal/adapters/tsvmarshaller"
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
@@ -16,12 +17,13 @@ func run(ctx context.Context) {
 	httpClient := xresty.New(http.DefaultClient)
 	tsvMarshaller := tsvmarshaller.New()
 	webPager := webpager.New(httpClient)
-	crawler := core.NewCrawler(webPager)
+	crawler := core.NewCrawler(webPager, inmemvisitor.New)
 	store := core.NewStore(tsvMarshaller)
 
 	crawlEntries, err := crawler.Crawl(ctx, core.CrawlParameters{
-		StartURL:   flagStartingURL,
-		DepthLimit: flagDepth,
+		StartURL:    flagStartingURL,
+		DepthLimit:  flagDepth,
+		Parallelism: flagParallelism,
 	})
 	if err != nil {
 		log.Println(err)

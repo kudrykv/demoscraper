@@ -33,7 +33,7 @@ func TestCrawler_Crawl(t *testing.T) {
 
 		urls := drainCrawlEntries(t, crawlEntries)
 
-		require.Equal(t, 2860, len(urls))
+		require.Equal(t, 2854, len(urls))
 
 		urlMap := make(map[string]struct{})
 		for _, url := range urls {

@@ -118,6 +118,7 @@ func (r Links) Cleanup() Links {
 
 	for i := range links {
 		links[i].url.Fragment = ""
+		links[i].url.Opaque = ""
 
 		if links[i].url.Path == "/" {
 			links[i].url.Path = ""
