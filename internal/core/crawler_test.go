@@ -2,6 +2,7 @@ package core_test
 
 import (
 	"context"
+	"demoscraper/internal/adapters/inmemvisitor"
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
 	"demoscraper/internal/core"
@@ -57,9 +58,10 @@ func setupVCR(cassetteName string) *recorder.Recorder {
 func setupCrawler(roundTripper http.RoundTripper) *core.Crawler {
 	rawHTTPClient := &http.Client{Transport: roundTripper}
 	httpClient := xresty.New(rawHTTPClient)
+	visitorMaker := inmemvisitor.New
 	webPager := webpager.New(httpClient)
 
-	return core.NewCrawler(webPager)
+	return core.NewCrawler(webPager, visitorMaker)
 }
 
 func drainCrawlEntries(t *testing.T, crawlEntries <-chan entities.CrawlEntry) []string {

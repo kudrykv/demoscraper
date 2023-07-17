@@ -21,3 +21,10 @@ type WebPages []WebPage
 type Marshaller interface {
 	Marshal(entities.CrawlEntry) ([]byte, error)
 }
+
+type VisitorMaker func() Visitor
+
+type Visitor interface {
+	Visit(string)
+	IsVisited(string) bool
+}

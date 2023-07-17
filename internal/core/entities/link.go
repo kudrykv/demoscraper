@@ -127,7 +127,7 @@ func (r Links) Cleanup() Links {
 	return links
 }
 
-func (r Links) DropVisited(hitMap map[string]struct{}) Links {
+func (r Links) DropVisited(hitMap VisitMap) Links {
 	if len(r) == 0 {
 		return nil
 	}
@@ -144,12 +144,12 @@ func (r Links) DropVisited(hitMap map[string]struct{}) Links {
 	return result
 }
 
-func (r Links) ToVisitedMap() map[string]struct{} {
+func (r Links) ToVisitedMap() VisitMap {
 	if len(r) == 0 {
 		return nil
 	}
 
-	visitedMap := make(map[string]struct{}, len(r))
+	visitedMap := make(VisitMap, len(r))
 	for _, link := range r {
 		visitedMap[link.URL()] = struct{}{}
 	}

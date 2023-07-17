@@ -9,12 +9,14 @@ import (
 )
 
 type Crawler struct {
-	webPager WebPager
+	webPager     WebPager
+	visitorMaker VisitorMaker
 }
 
-func NewCrawler(webPager WebPager) *Crawler {
+func NewCrawler(webPager WebPager, visitorMaker VisitorMaker) *Crawler {
 	return &Crawler{
-		webPager: webPager,
+		webPager:     webPager,
+		visitorMaker: visitorMaker,
 	}
 }
 
