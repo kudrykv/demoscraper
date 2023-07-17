@@ -2,10 +2,12 @@ package xresty
 
 import (
 	"context"
-	"demoscraper/internal/core/entities"
 	"fmt"
-	"github.com/go-resty/resty/v2"
 	"net/http"
+
+	"demoscraper/internal/core/entities"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type Client struct {

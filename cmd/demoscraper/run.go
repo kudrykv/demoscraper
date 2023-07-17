@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
+	"log"
+	"net/http"
+	"sync"
+
 	"demoscraper/internal/adapters/inmemvisitor"
 	"demoscraper/internal/adapters/tsvmarshaller"
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
 	"demoscraper/internal/core"
 	"demoscraper/internal/core/entities"
-	"log"
-	"net/http"
-	"sync"
 )
 
 func run(ctx context.Context) {

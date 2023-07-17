@@ -3,11 +3,13 @@ package webpager
 import (
 	"bytes"
 	"context"
-	"demoscraper/internal/core/entities"
 	"fmt"
+	"io"
+
+	"demoscraper/internal/core/entities"
+
 	"github.com/antchfx/htmlquery"
 	"golang.org/x/net/html"
-	"io"
 )
 
 type WebPage struct {

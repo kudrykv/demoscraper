@@ -2,6 +2,10 @@ package core_test
 
 import (
 	"context"
+	"net/http"
+	"testing"
+	"time"
+
 	"demoscraper/internal/adapters/inmemvisitor"
 	"demoscraper/internal/adapters/webpager"
 	"demoscraper/internal/clients/xresty"
@@ -9,9 +13,6 @@ import (
 	"demoscraper/internal/core/entities"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/dnaeon/go-vcr.v3/recorder"
-	"net/http"
-	"testing"
-	"time"
 )
 
 func TestCrawler_Crawl(t *testing.T) {

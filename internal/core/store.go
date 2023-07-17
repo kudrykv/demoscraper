@@ -2,9 +2,10 @@ package core
 
 import (
 	"context"
-	"demoscraper/internal/core/entities"
 	"fmt"
 	"os"
+
+	"demoscraper/internal/core/entities"
 )
 
 type Store struct {

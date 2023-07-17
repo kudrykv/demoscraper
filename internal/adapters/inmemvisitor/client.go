@@ -1,9 +1,10 @@
 package inmemvisitor
 
 import (
+	"sync"
+
 	"demoscraper/internal/core"
 	"demoscraper/internal/core/entities"
-	"sync"
 )
 
 type Client struct {

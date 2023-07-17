@@ -2,10 +2,11 @@ package core
 
 import (
 	"context"
-	"demoscraper/internal/core/entities"
 	"fmt"
 	"runtime"
 	"sync"
+
+	"demoscraper/internal/core/entities"
 )
 
 type Crawler struct {
