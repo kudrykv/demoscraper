@@ -8,6 +8,7 @@ import (
 	"demoscraper/internal/core"
 	"demoscraper/internal/core/entities"
 	"log"
+	"sync"
 )
 
 func run(ctx context.Context) {
@@ -29,6 +30,8 @@ func run(ctx context.Context) {
 
 	logChan := make(chan entities.CrawlEntry, 1)
 	saveChan := make(chan entities.CrawlEntry, 1)
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 
 	go func() {
 		for entry := range crawlEntries {
@@ -38,6 +41,7 @@ func run(ctx context.Context) {
 
 		close(logChan)
 		close(saveChan)
+		wg.Done()
 	}()
 
 	go func() {
@@ -51,4 +55,6 @@ func run(ctx context.Context) {
 
 		return
 	}
+
+	wg.Wait()
 }
