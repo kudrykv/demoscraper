@@ -21,8 +21,9 @@ func NewCrawler(webPager WebPager, makeVisitor MakeVisitor) *Crawler {
 }
 
 type CrawlParameters struct {
-	StartURL   string
-	DepthLimit int
+	StartURL    string
+	DepthLimit  int
+	Parallelism int
 }
 
 func (r *Crawler) Crawl(ctx context.Context, parameters CrawlParameters) (<-chan entities.CrawlEntry, error) {
@@ -57,15 +58,7 @@ func (r *Crawler) crawl(
 		webPages := r.webPager.NewFromLinks(processedLinks)
 		processedLinks = processedLinks[:0]
 
-		waitGroup := sync.WaitGroup{}
-		waitGroup.Add(len(webPages))
-
-		semaphoreLimit := runtime.NumCPU()
-		if semaphoreLimit < 1 {
-			semaphoreLimit = 1
-		}
-
-		semaphore := make(chan struct{}, semaphoreLimit)
+		waitGroup, semaphore := makeWaitGroupAndSemaphore(len(webPages), parameters.Parallelism)
 
 		for _, webPage := range webPages {
 			webPage := webPage
@@ -101,4 +94,19 @@ func (r *Crawler) crawl(
 
 		waitGroup.Wait()
 	}
+}
+
+func makeWaitGroupAndSemaphore(waitGroupSize int, semaphoreSize int) (*sync.WaitGroup, chan struct{}) {
+	waitGroup := &sync.WaitGroup{}
+	waitGroup.Add(waitGroupSize)
+
+	if semaphoreSize < 1 {
+		if numCpu := runtime.NumCPU(); numCpu < 1 {
+			semaphoreSize = 1
+		} else {
+			semaphoreSize = numCpu
+		}
+	}
+
+	return waitGroup, make(chan struct{}, semaphoreSize)
 }
