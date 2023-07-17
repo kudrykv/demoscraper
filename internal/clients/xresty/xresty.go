@@ -12,9 +12,9 @@ type Client struct {
 	client *resty.Client
 }
 
-func New() Client {
+func New(httpClient *http.Client) Client {
 	return Client{
-		client: resty.NewWithClient(http.DefaultClient),
+		client: resty.NewWithClient(httpClient),
 	}
 }
 
