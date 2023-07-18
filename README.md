@@ -20,8 +20,8 @@ Crawler logic is straightforward: it starts with a given URL, fetches the page, 
 iteratively does the same for all the links found on the page. It also keeps track of the depth of
 the current link, so it can stop when it reaches the maximum depth.
 
-The app uses a simple in-memory cache to avoid fetching the same URL twice. It also uses a
-`sync.WaitGroup` to limit the number of concurrent requests.
+The app uses a simple in-memory cache to avoid fetching the same URL twice, and
+a semaphore to limit the number of concurrent requests.
 
 ### Structure
 
@@ -32,3 +32,6 @@ App internals are split into several packages:
 - `core` — contains the main crawler logic
 - `adapters` – contains the implementations of the interfaces defined in `core` package
 - `clients` — contains the wrappers for external libraries' clients
+
+`./internal/core/crawler.go` is the essence of the app.
+It contains the main crawler logic.
