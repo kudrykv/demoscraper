@@ -143,7 +143,9 @@ func drainCrawlEntries(t *testing.T, crawlEntries <-chan entities.CrawlEntry) []
 	return urls
 }
 
-func drainCrawlEntriesWithTimeout(t *testing.T, crawlEntries <-chan entities.CrawlEntry, timeout time.Duration) []string {
+func drainCrawlEntriesWithTimeout(
+	t *testing.T, crawlEntries <-chan entities.CrawlEntry, timeout time.Duration,
+) []string {
 	t.Helper()
 
 	var urls []string
