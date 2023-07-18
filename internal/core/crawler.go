@@ -4,6 +4,7 @@ import (
 	"context"
 	"demoscraper/internal/core/entities"
 	"fmt"
+	"log"
 	"runtime"
 	"sync"
 )
@@ -68,11 +69,15 @@ func (r *Crawler) crawl(
 				defer func() { <-semaphore }()
 
 				if err := webPage.Load(ctx); err != nil {
+					log.Println(err)
+
 					return
 				}
 
 				links, err := webPage.Links(ctx)
 				if err != nil {
+					log.Println(err)
+
 					return
 				}
 
