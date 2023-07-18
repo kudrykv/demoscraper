@@ -35,3 +35,13 @@ App internals are split into several packages:
 
 `./internal/core/crawler.go` is the essence of the app.
 It contains the main crawler logic.
+It iterates through the depth levels.
+On each level, it parallels page fetching and parsing.
+With a simple in-memory cache it avoids fetching the same URL twice.
+Once all the links of the given depth level are fetched and parsed, it moves to the next level.
+
+### Tests
+
+For the sake of simplicity, the app has only a few tests.
+The main crawler logic is covered with unit tests.
+It checks happy paths, as well as handling of cancellation signal.
